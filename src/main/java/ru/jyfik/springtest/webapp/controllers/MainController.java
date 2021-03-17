@@ -13,19 +13,18 @@ import ru.jyfik.springtest.webapp.repos.MessageRepo;
 import java.util.Map;
 
 @Controller
-public class GreetingController {
+public class MainController {
 
     @Autowired
     private MessageRepo messageRepo;
 
-    @GetMapping("/greeting")
-    public ModelAndView greeting(@RequestParam(name="name", required=false, defaultValue="World") String name, ModelAndView model) {
-        model.addObject("name", name);
+    @GetMapping("/")
+    public ModelAndView greeting(ModelAndView model) {
         model.setViewName("hello");
         return model;
     }
 
-    @GetMapping
+    @GetMapping("/index")
     public ModelAndView sayHello() {
         Iterable<Message> messages = messageRepo.findAll();
         ModelAndView modelAndView = new ModelAndView("index");
@@ -34,7 +33,7 @@ public class GreetingController {
         return modelAndView;
     }
 
-    @PostMapping
+    @PostMapping("/index")
     public String add(@RequestParam String text, @RequestParam String tag, Model model) {
         Message message = new Message(text, tag);
         messageRepo.save(message);
