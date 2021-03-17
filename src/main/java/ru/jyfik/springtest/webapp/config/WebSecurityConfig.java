@@ -1,12 +1,14 @@
 package ru.jyfik.springtest.webapp.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.sql.DataSource;
 
@@ -16,6 +18,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private DataSource dataSource;
+
+    @Bean
+    public PasswordEncoder encoder() {
+        return new BCryptPasswordEncoder(8);
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -36,7 +43,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.jdbcAuthentication()
                 .dataSource(dataSource)
-                .passwordEncoder(NoOpPasswordEncoder.getInstance())
+                .passwordEncoder(new BCryptPasswordEncoder()) //NoOpPasswordEncoder.getInstance()
                 .usersByUsernameQuery("SELECT user_name, password, active FROM usr WHERE user_name = ?")
                 .authoritiesByUsernameQuery("SELECT u.user_name, ur.role FROM usr u INNER JOIN user_role ur " +
                                             "ON u.id = ur.user_id WHERE u.user_name = ?");
